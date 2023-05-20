@@ -22,47 +22,112 @@
       </div>
     </div>
 
-    <!-- Accordion -->
-    <Accordion v-for="(doa, i) in allDoa" :key="i" :doa="doa">
-      {{ doa.translation }}
-    </Accordion>
+    <div id="map"></div>
   </default-container>
 </template>
 
 <script>
-import Accordion from "../components/Accordion.vue";
 import DefaultContainer from "../components/DefaultContainer.vue";
-import axios from "axios";
-import { onMounted, ref } from "vue";
-import { useDark } from "@vueuse/core";
+import { onMounted } from "vue";
 
 export default {
-  components: { DefaultContainer, Accordion },
+  components: { DefaultContainer },
 
   setup() {
-    const allDoa = ref([]);
-    const isDark = useDark();
-
-    const getDoa = async () => {
-      try {
-        const response = await axios.get(
-          "https://islamic-api-zhirrr.vercel.app/api/doaharian"
-        );
-        let { data } = response.data;
-        allDoa.value = data;
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
     onMounted(() => {
-      getDoa();
-      isDark.value;
+      // Replace YOUR_API_KEY with your own Google Maps API key
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA_svPYFjmJdX1pWuLHLlNxGPji5UPOUmk&libraries=places&callback=initMap`;
+      script.async = true;
+      document.head.appendChild(script);
     });
 
-    return {
-      allDoa,
+    window.initMap = () => {
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -34.397, lng: 150.644 },
+        zoom: 15,
+      });
+
+      const infoWindow = new google.maps.InfoWindow();
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) =>
+          {
+            const pos =
+            {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            map.setCenter(pos);
+
+            const request =
+            {
+              location: pos,
+              radius: "5000",
+              type: ["mosque"],
+            };
+
+            const service = new google.maps.places.PlacesService(map);
+            const infoWindow = new google.maps.InfoWindow();
+
+// ...
+
+service.nearbySearch(request, (results, status) => {
+  if (status === google.maps.places.PlacesServiceStatus.OK) {
+    for (let i = 0; i < results.length; i++) {
+      const place = results[i];
+      const marker = new google.maps.Marker({
+        position: place.geometry.location,
+        map,
+        title: place.name,
+        icon: {
+          url: "https://maps.google.com/mapfiles/kml/shapes/mosque_maps.png",
+          scaledSize: new google.maps.Size(32, 32),
+        },
+      });
+
+      marker.addListener("click", () => {
+        console.log("Marker clicked:", place.name);
+        infoWindow.setContent(`<div style="color: black;">
+        <h3>${place.name}</h3>
+        <p>${place.vicinity}</p>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}">Get Directions</a>
+        </div>`);
+        console.log("InfoWindow content:", infoWindow.getContent());
+        infoWindow.open(map, marker);
+      });
+    }
+  }
+});
+
+
+          },
+          () => {
+            handleLocationError(true, infoWindow, map.getCenter());
+          }
+        );
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+          browserHasGeolocation
+            ? "Error: The Geolocation service failed."
+            : "Error: Your browser doesn't support geolocation."
+        );
+        infoWindow.open(map);
+      }
     };
   },
 };
 </script>
+
+<style scoped>
+#map {
+  height: 700px;
+}
+</style>

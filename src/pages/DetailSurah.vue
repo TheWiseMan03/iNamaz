@@ -109,7 +109,7 @@ export default {
       })),
     };
     
-    // New code to fetch audio from a different API
+    // code to fetch audio from an API
     const response = await axios.get(
       "https://equran.id/api/v2/surat/" + route.params.id
     );

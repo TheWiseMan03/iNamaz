@@ -44,44 +44,33 @@ import { useRoute } from "vue-router";
 
 export default {
   setup() {
-  const route = useRoute();
-  const isDark = useDark();
-  const allTafsir = reactive({
-    list: [],
-  });
+    const route = useRoute();
+    const isDark = useDark();
+    const allTafsir = reactive({
+      list: [],
+    });
 
-  const getTafsirSurah = async () => {
-  try {
-    const tafseerId = 1; // Replace with the ID of the Tafsir source you want to use
-    const surahResponse = await axios.get(
-      `https://api.quran-tafseer.com/quran/${route.params.id}`
-    );
-    const numberOfAyahs = surahResponse.data.ayahs.length;
-    const tafsirPromises = [];
-    for (let i = 1; i <= numberOfAyahs; i++) {
-      tafsirPromises.push(
-        axios.get(
-          `https://api.quran-tafseer.com/tafseer/${tafseerId}/${route.params.id}/${i}`
-        )
-      );
-    }
-    const tafsirResponses = await Promise.all(tafsirPromises);
-    allTafsir.list = tafsirResponses.map((response) => response.data);
-  } catch (error) {
-    console.log(error);
-  }
-};
+    const getTafsirSurah = async () => {
+      try {
+        const response = await axios.get(
+          "https://equran.id/api/v2/tafsir/" + route.params.id
+        );
+        let { data } = response.data;
+        allTafsir.list = data.tafsir;
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  onMounted(() => {
-    getTafsirSurah();
-    isDark.value;
-  });
+    onMounted(() => {
+      getTafsirSurah();
+      isDark.value;
+    });
 
-  return {
-    allTafsir,
-    getTafsirSurah,
-  };
-},
+    return {
+      allTafsir,
+    };
+  },
 };
 </script>
 
