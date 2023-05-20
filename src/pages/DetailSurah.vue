@@ -94,10 +94,10 @@ export default {
     const getDetailSurah = async () => {
   try {
     const arabicResponse = await axios.get(
-      `http://api.alquran.cloud/v1/surah/${route.params.id}`
+      `https://api.alquran.cloud/v1/surah/${route.params.id}`
     );
     const englishResponse = await axios.get(
-      `http://api.alquran.cloud/v1/surah/${route.params.id}/en.sahih`
+      `https://api.alquran.cloud/v1/surah/${route.params.id}/en.sahih`
     );
     let arabicData = arabicResponse.data.data;
     let englishData = englishResponse.data.data;

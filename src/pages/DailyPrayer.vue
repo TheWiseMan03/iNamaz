@@ -71,37 +71,33 @@ export default {
             const service = new google.maps.places.PlacesService(map);
             const infoWindow = new google.maps.InfoWindow();
 
-// ...
+            service.nearbySearch(request, (results, status) => {
+              if (status === google.maps.places.PlacesServiceStatus.OK) {
+                for (let i = 0; i < results.length; i++) {
+                  const place = results[i];
+                  const marker = new google.maps.Marker({
+                    position: place.geometry.location,
+                    map,
+                    title: place.name,
+                    icon: {
+                      url: "https://maps.google.com/mapfiles/kml/shapes/mosque_maps.png",
+                      scaledSize: new google.maps.Size(32, 32),
+                    },
+                  });
 
-service.nearbySearch(request, (results, status) => {
-  if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (let i = 0; i < results.length; i++) {
-      const place = results[i];
-      const marker = new google.maps.Marker({
-        position: place.geometry.location,
-        map,
-        title: place.name,
-        icon: {
-          url: "https://maps.google.com/mapfiles/kml/shapes/mosque_maps.png",
-          scaledSize: new google.maps.Size(32, 32),
-        },
-      });
-
-      marker.addListener("click", () => {
-        console.log("Marker clicked:", place.name);
-        infoWindow.setContent(`<div style="color: black;">
-        <h3>${place.name}</h3>
-        <p>${place.vicinity}</p>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}">Get Directions</a>
-        </div>`);
-        console.log("InfoWindow content:", infoWindow.getContent());
-        infoWindow.open(map, marker);
-      });
-    }
-  }
-});
-
-
+                  marker.addListener("click", () => {
+                    console.log("Marker clicked:", place.name);
+                    infoWindow.setContent(`<div style="color: black;">
+                    <h3>${place.name}</h3>
+                    <p>${place.vicinity}</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}">Get Directions</a>
+                    </div>`);
+                    console.log("InfoWindow content:", infoWindow.getContent());
+                    infoWindow.open(map, marker);
+                  });
+                }
+              }
+            });
           },
           () => {
             handleLocationError(true, infoWindow, map.getCenter());

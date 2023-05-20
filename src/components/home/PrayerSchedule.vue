@@ -211,7 +211,7 @@ export default {
   methods: {
     async getPrayerTimes(latitude, longitude) {
       try {
-        const response = await axios.get(`http://api.aladhan.com/v1/timings/${this.date}?latitude=${latitude}&longitude=${longitude}&method=2`);
+        const response = await axios.get(`https://api.aladhan.com/v1/timings/${this.date}?latitude=${latitude}&longitude=${longitude}&method=2`);
         this.prayerTimes = response.data.data.timings;
       } catch (error) {
         console.log(error);
